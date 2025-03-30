@@ -1,0 +1,9 @@
+CC=gcc
+CFLAGS=-g -O0
+
+vuln: src/vuln.c
+    $(CC) $(CFLAGS) -o vuln src/vuln.c
+
+.PHONY: clean
+clean:
+    rm -f vuln
