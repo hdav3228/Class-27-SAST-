@@ -1,4 +1,5 @@
 name: "CodeQL Analysis"
+
 on:
   push:
     branches: [ main ]
@@ -6,6 +7,7 @@ on:
     branches: [ main ]
   schedule:
     - cron: '0 0 * * 0'
+
 jobs:
   analyze:
     name: Analyze
@@ -17,27 +19,37 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: [ 'cpp' ]
+        language: ['cpp']
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        
+      
+      - name: Setup Build Tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential
+      
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
-          
-      - name: Build code
+          queries: security-and-quality
+      
+      - name: Debug Repository Contents
         run: |
-          # Show workspace files
+          echo "Repository contents:"
           ls -la
-          
-          # Force clean and rebuild
-          make clean || true
-          make vuln VERBOSE=1
-          
-          # Show the built files
+          echo "Makefile contents:"
+          cat -e -t -v Makefile
+          echo "vuln.c contents:"
+          cat vuln.c
+      
+      - name: Build Code
+        run: |
+          echo "Building with explicit compilation command..."
+          gcc -g -o vuln vuln.c
+          echo "Build complete. Generated files:"
           ls -la
-          
+      
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
