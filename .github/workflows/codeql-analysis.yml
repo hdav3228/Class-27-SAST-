@@ -21,11 +21,23 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v3
         with:
           languages: ${{ matrix.language }}
+          
       - name: Build code
-        run: make
+        run: |
+          # Show workspace files
+          ls -la
+          
+          # Force clean and rebuild
+          make clean || true
+          make vuln VERBOSE=1
+          
+          # Show the built files
+          ls -la
+          
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v3
